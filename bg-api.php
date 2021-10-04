@@ -4,7 +4,7 @@
 * Plugin Name: Blaugrana API
 * Plugin URI: https://github.com/blaugranano/wp-api-plugin
 * Description: This WordPress plugin adds additional data to the WordPress REST API output.
-* Version: 2.0.0
+* Version: 2.1.0
 * Author: Blaugrana
 * Author URI: https://github.com/blaugranano
 */
@@ -222,28 +222,36 @@ function bg_get_type($post) {
 /**
 * Initiate plugin
 */
-function bg_register_field($field, $fn) {
+function bg_register_field($type, $field, $fn) {
   $callback = [
     'get_callback' => $fn,
     'update_callback' => null,
     'schema' => null,
   ];
 
-  return register_rest_field('post', $field, $callback);
+  return register_rest_field($type, $field, $callback);
 }
 
 function bg_init() {
-  bg_register_field('wp_adjacent', 'bg_get_adjacent');
-  bg_register_field('wp_author', 'bg_get_author');
-  bg_register_field('wp_category', 'bg_get_category');
-  bg_register_field('wp_content', 'bg_get_content');
-  bg_register_field('wp_image', 'bg_get_image');
-  bg_register_field('wp_slug', 'bg_get_slug');
-  bg_register_field('wp_status', 'bg_get_status');
-  bg_register_field('wp_tags', 'bg_get_tags');
-  bg_register_field('wp_timestamp', 'bg_get_timestamp');
-  bg_register_field('wp_title', 'bg_get_title');
-  bg_register_field('wp_type', 'bg_get_type');
+  bg_register_field('post', 'wp_adjacent', 'bg_get_adjacent');
+  bg_register_field('post', 'wp_author', 'bg_get_author');
+  bg_register_field('post', 'wp_category', 'bg_get_category');
+  bg_register_field('post', 'wp_content', 'bg_get_content');
+  bg_register_field('post', 'wp_image', 'bg_get_image');
+  bg_register_field('post', 'wp_slug', 'bg_get_slug');
+  bg_register_field('post', 'wp_status', 'bg_get_status');
+  bg_register_field('post', 'wp_tags', 'bg_get_tags');
+  bg_register_field('post', 'wp_timestamp', 'bg_get_timestamp');
+  bg_register_field('post', 'wp_title', 'bg_get_title');
+  bg_register_field('post', 'wp_type', 'bg_get_type');
+  bg_register_field('page', 'wp_content', 'bg_get_content');
+  bg_register_field('page', 'wp_image', 'bg_get_image');
+  bg_register_field('page', 'wp_slug', 'bg_get_slug');
+  bg_register_field('page', 'wp_status', 'bg_get_status');
+  bg_register_field('page', 'wp_tags', 'bg_get_tags');
+  bg_register_field('page', 'wp_timestamp', 'bg_get_timestamp');
+  bg_register_field('page', 'wp_title', 'bg_get_title');
+  bg_register_field('page', 'wp_type', 'bg_get_type');
 }
 
 /**
