@@ -1,0 +1,6 @@
+.DS_Store
+*.log
+build
+client/etc
+node_modules
+Thumbs.db
