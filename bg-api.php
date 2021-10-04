@@ -1,9 +1,9 @@
 <?php
 
 /**
-* Plugin Name: Extended API
-* Plugin URI: https://github.com/blaugranano/wordpress-init
-* Description: Adds additional data to the WordPress REST API output.
+* Plugin Name: Blaugrana API
+* Plugin URI: https://github.com/blaugranano/wp-api-plugin
+* Description: This WordPress plugin adds additional data to the WordPress REST API output.
 * Version: 2.0.0
 * Author: Blaugrana
 * Author URI: https://github.com/blaugranano
