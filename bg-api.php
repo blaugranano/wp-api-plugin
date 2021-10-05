@@ -56,6 +56,12 @@ function bg_get_post($post) {
   ];
 }
 
+function bg_get_menu($req) {
+  $id = $req['id'];
+
+  return wp_get_nav_menu_items($id);
+}
+
 /**
 * Define plugin function
 */
@@ -222,6 +228,15 @@ function bg_get_type($post) {
 /**
 * Initiate plugin
 */
+function bg_register_menu() {
+  $callback = [
+    'methods' => 'GET',
+    'callback' => 'bg_get_menu'
+  ];
+
+  return register_rest_route('wp/v2', '/menus/(?P<id>\d+)', $callback);
+}
+
 function bg_register_field($type, $field, $fn) {
   $callback = [
     'get_callback' => $fn,
@@ -233,6 +248,7 @@ function bg_register_field($type, $field, $fn) {
 }
 
 function bg_init() {
+  bg_register_menu();
   bg_register_field('post', 'wp_adjacent', 'bg_get_adjacent');
   bg_register_field('post', 'wp_author', 'bg_get_author');
   bg_register_field('post', 'wp_category', 'bg_get_category');
