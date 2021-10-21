@@ -4,7 +4,7 @@
 * Plugin Name: Blaugrana API
 * Plugin URI: https://github.com/blaugranano/wp-api-plugin
 * Description: This WordPress plugin adds custom endpoints to the WordPress REST API.
-* Version: 3.0.0
+* Version: 4.0.0
 * Author: Blaugrana
 * Author URI: https://github.com/blaugranano
 */
@@ -21,7 +21,7 @@ setlocale(LC_ALL, 'nb_NO.utf8');
 
 const BG__IMAGE_PATH = 'https://wp.blgr.app/wp-content/uploads';
 const BG__IMAGE_SIZE = 'large';
-const BG__REST_NAMESPACE = 'bg/v3';
+const BG__REST_NAMESPACE = 'bg/v4';
 
 /**
 * Define helper functions
