@@ -19,15 +19,15 @@ setlocale(LC_ALL, 'nb_NO.utf8');
 * Define plugin constants
 */
 
-const BG__IMAGE_PATH = 'https://wp.blgr.app/wp-content/uploads';
-const BG__IMAGE_SIZE = 'large';
-const BG__REST_NAMESPACE = 'bg/v4';
+const BG__v4__IMAGE_PATH = 'https://wp.blgr.app/wp-content/uploads';
+const BG__v4__IMAGE_SIZE = 'large';
+const BG__v4__REST_NAMESPACE = 'bg/v4';
 
 /**
 * Define helper functions
 */
 
-function bg__filter($str) {
+function bg__v4__filter($str) {
   $filter = [
     '/&#8211;/' => '–',
     '/&#8212;/' => '–',
@@ -55,7 +55,7 @@ function bg__filter($str) {
   return preg_replace(array_keys($filter), array_values($filter), $str);
 }
 
-function bg__get_author($post_id) {
+function bg__v4__get_author($post_id) {
   $post_object = get_post($post_id);
   $author_id = $post_object->post_author;
   $author_firstname = get_the_author_meta('first_name', $author_id);
@@ -64,13 +64,13 @@ function bg__get_author($post_id) {
   return trim("{$author_firstname} {$author_lastname}");
 }
 
-function bg__get_category($post_id) {
+function bg__v4__get_category($post_id) {
   $category_object = get_the_category($post_id);
   
   return $category_object[0]->name;
 }
 
-function bg__get_content($post_id) {
+function bg__v4__get_content($post_id) {
   $post_object = get_post($post_id);
   $post_content = $post_object->post_content;
   $has_blocks = preg_match('/wp:paragraph/', $post_content);
@@ -79,69 +79,106 @@ function bg__get_content($post_id) {
     $post_content = preg_replace("/\\n/", "\n\n", $post_content);
   }
 
-  return bg__filter(apply_filters('the_content', $post_content));
+  return bg__v4__filter(apply_filters('the_content', $post_content));
 }
 
-function bg__get_date($post_id) {
+function bg__v4__get_date($post_id) {
   $post_object = get_post($post_id);
   $timestamp = strtotime($post_object->post_date);
 
   return strftime('%-d. %B %Y kl. %H.%M', $timestamp);
 }
 
-function bg__get_image($post_id) {
+function bg__v4__get_image($post_id) {
   if (has_post_thumbnail($post_id)) {
     $image_id = get_post_thumbnail_id($post_id);
-    $image_object = wp_get_attachment_image_src($image_id, BG__IMAGE_SIZE);
+    $image_object = wp_get_attachment_image_src($image_id, BG__v4__IMAGE_SIZE);
     $image_basename = basename($image_object[0]);
 
-    return BG__IMAGE_PATH . "/{$image_basename}";
+    return BG__v4__IMAGE_PATH . "/{$image_basename}";
   }
 
   return false;
 }
 
-function bg__get_slug($post_id) {
+function bg__v4__get_slug($post_id) {
   $post_object = get_post($post_id);
   $category_object = get_the_category($post_id);
 
   return "/{$category_object[0]->slug}/{$post_id}/{$post_object->post_name}";
 }
 
-function bg__get_title($post_id) {
+function bg__v4__get_title($post_id) {
   $post_object = get_post($post_id);
   $title = $post_object->post_title;
 
-  return bg__filter(apply_filters('the_title', $title));
+  return bg__v4__filter(apply_filters('the_title', $title));
 }
 
-function bg__render_page($ref) {
+function bg__v4__get_next_post($post_id) {
+  global $post;
+
+  $post = get_post($post_id);
+  setup_postdata($post);
+  $post_object = get_next_post();
+  $post_id = $post_object->ID;
+  wp_reset_postdata();
+
+  return [
+    'post_category' => bg__v4__get_category($post_id),
+    'post_id' => $post_id,
+    'post_image' => bg__v4__get_image($post_id),
+    'post_slug' => bg__v4__get_slug($post_id),
+    'post_title' => bg__v4__get_title($post_id),
+  ];
+}
+
+function bg__v4__get_previous_post($post_id) {
+  global $post;
+
+  $post = get_post($post_id);
+  setup_postdata($post);
+  $post_object = get_previous_post();
+  $post_id = $post_object->ID;
+  wp_reset_postdata();
+
+  return [
+    'post_category' => bg__v4__get_category($post_id),
+    'post_id' => $post_id,
+    'post_image' => bg__v4__get_image($post_id),
+    'post_slug' => bg__v4__get_slug($post_id),
+    'post_title' => bg__v4__get_title($post_id),
+  ];
+}
+
+function bg__v4__render_page($ref) {
   $post_id = $ref->ID;
   $post_object = get_post($post_id);
   $page_object = [
-    'post_content' => bg__get_content($post_id),
-    'post_date' => bg__get_date($post_id),
+    'post_content' => bg__v4__get_content($post_id),
+    'post_date' => bg__v4__get_date($post_id),
     'post_id' => $post_id,
-    'post_image' => bg__get_image($post_id),
+    'post_image' => bg__v4__get_image($post_id),
     'post_slug' => "/{$post_object->post_name}",
-    'post_title' => bg__get_title($post_id),
+    'post_title' => bg__v4__get_title($post_id),
   ];
 
   return $page_object;
 }
 
-function bg__render_post($ref) {
+function bg__v4__render_post($ref) {
   $post_id = $ref->ID;
-  $post_category = bg__get_category($post_id);
   $post_object = [
-    'post_author' => bg__get_author($post_id),
-    'post_category' => $post_category,
-    'post_content' => bg__get_content($post_id),
-    'post_date' => bg__get_date($post_id),
+    'post_author' => bg__v4__get_author($post_id),
+    'post_category' => bg__v4__get_category($post_id),
+    'post_content' => bg__v4__get_content($post_id),
+    'post_date' => bg__v4__get_date($post_id),
     'post_id' => $post_id,
-    'post_image' => bg__get_image($post_id),
-    'post_slug' => bg__get_slug($post_id),
-    'post_title' => bg__get_title($post_id),
+    'post_image' => bg__v4__get_image($post_id),
+    'post_slug' => bg__v4__get_slug($post_id),
+    'post_title' => bg__v4__get_title($post_id),
+    'next_post' => bg__v4__get_next_post($post_id),
+    'previous_post' => bg__v4__get_previous_post($post_id),
   ];
 
   return $post_object;
@@ -151,23 +188,23 @@ function bg__render_post($ref) {
 * Define plugin functions
 */
 
-function bg__menus($req) {
+function bg__v4__menus($req) {
   $menu_id = $req->get_param('menu_id');
 
   return wp_get_nav_menu_items($menu_id);
 }
 
-function bg__pages($req) {
+function bg__v4__pages($req) {
   $pages = get_posts([
     'p' => $req->get_param('page_id') ?: NULL,
     'name' => $req->get_param('page_slug') ?: NULL,
     'post_type' => 'page',
   ]);
 
-  return array_map('bg__render_page', $pages);
+  return array_map('bg__v4__render_page', $pages);
 }
 
-function bg__posts($req) {
+function bg__v4__posts($req) {
   $posts = get_posts([
     'category_name' => $req->get_param('post_category') ?: NULL,
     'p' => $req->get_param('post_id') ?: NULL,
@@ -179,14 +216,14 @@ function bg__posts($req) {
     's' => $req->get_param('search') ?: NULL,
   ]);
 
-  return array_map('bg__render_post', $posts);
+  return array_map('bg__v4__render_post', $posts);
 }
 
 /**
 * Initiate plugin
 */
 
-function bg__register_rest_route($namespace, $route, $fn, $args = []) {
+function bg__v4__register_rest_route($namespace, $route, $fn, $args = []) {
   return register_rest_route($namespace, $route, [
     'methods' => 'GET',
     'callback' => $fn,
@@ -194,9 +231,9 @@ function bg__register_rest_route($namespace, $route, $fn, $args = []) {
   ]);
 }
 
-function bg__init() {
+function bg__v4__init() {
   // Register menus endpoint
-  bg__register_rest_route(BG__REST_NAMESPACE, '/menus(|/(?P<menu_id>\d+))', 'bg__menus', [
+  bg__v4__register_rest_route(BG__v4__REST_NAMESPACE, '/menus(|/(?P<menu_id>\d+))', 'bg__v4__menus', [
     'menu_id' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
@@ -205,7 +242,7 @@ function bg__init() {
   ]);
 
   // Register pages endpoint
-  bg__register_rest_route(BG__REST_NAMESPACE, '/pages(|/(?P<page_id>\d+))', 'bg__pages', [
+  bg__v4__register_rest_route(BG__v4__REST_NAMESPACE, '/pages(|/(?P<page_id>\d+))', 'bg__v4__pages', [
     'page_id' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
@@ -219,7 +256,7 @@ function bg__init() {
   ]);
 
   // Register posts endpoint
-  bg__register_rest_route(BG__REST_NAMESPACE, '/posts(|/(?P<post_id>\d+))', 'bg__posts', [
+  bg__v4__register_rest_route(BG__v4__REST_NAMESPACE, '/posts(|/(?P<post_id>\d+))', 'bg__v4__posts', [
     'limit' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
@@ -271,4 +308,4 @@ function bg__init() {
   ]);
 }
 
-add_action('rest_api_init', 'bg__init');
+add_action('rest_api_init', 'bg__v4__init');
