@@ -196,7 +196,7 @@ function bg__register_rest_route($namespace, $route, $fn, $args = []) {
 
 function bg__init() {
   // Register menus endpoint
-  bg__register_rest_route(BG__REST_NAMESPACE, '/menus', 'bg__menus', [
+  bg__register_rest_route(BG__REST_NAMESPACE, '/menus(|/(?P<menu_id>\d+))', 'bg__menus', [
     'menu_id' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
@@ -205,7 +205,7 @@ function bg__init() {
   ]);
 
   // Register pages endpoint
-  bg__register_rest_route(BG__REST_NAMESPACE, '/pages', 'bg__pages', [
+  bg__register_rest_route(BG__REST_NAMESPACE, '/pages(|/(?P<page_id>\d+))', 'bg__pages', [
     'page_id' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
@@ -219,7 +219,7 @@ function bg__init() {
   ]);
 
   // Register posts endpoint
-  bg__register_rest_route(BG__REST_NAMESPACE, '/posts', 'bg__posts', [
+  bg__register_rest_route(BG__REST_NAMESPACE, '/posts(|/(?P<post_id>\d+))', 'bg__posts', [
     'limit' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
