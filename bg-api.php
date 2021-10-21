@@ -105,7 +105,7 @@ function bg__get_slug($post_id) {
   $post_object = get_post($post_id);
   $category_object = get_the_category($post_id);
 
-  return "{$category[0]->slug}/{$post_id}/{$post_object->post_name}";
+  return "/{$category_object[0]->slug}/{$post_id}/{$post_object->post_name}";
 }
 
 function bg__get_title($post_id) {
