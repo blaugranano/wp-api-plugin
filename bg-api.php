@@ -263,26 +263,26 @@ function bg__posts($req) {
 * Initiate plugin
 */
 
-function bg__register_rest_route($namespace, $route, $fn, $args = []) {
-  return register_rest_route($namespace, $route, [
-    'methods' => 'GET',
-    'callback' => __NAMESPACE__ . '\\' . $fn,
-    'args' => $args,
-  ]);
-}
+function bg__api_init() {
+  $register_rest_route = function ($route, $fn, $args = []) {
+    $api_version = bg__get_api_version();
+    $rest_namespace = "bg/{$api_version}";
 
-function bg__init() {
-  $api_version = bg__get_api_version();
-  $rest_namespace = "bg/{$api_version}";
+    return register_rest_route($rest_namespace, $route, [
+      'methods' => 'GET',
+      'callback' => __NAMESPACE__ . '\\' . $fn,
+      'args' => $args,
+    ]);
+  };
 
-  bg__register_rest_route($rest_namespace, '/menus(|/(?P<menu_id>\d+))', 'bg__menus', [
+  $register_rest_route('/menus(|/(?P<menu_id>\d+))', 'bg__menus', [
     'menu_id' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
       },
     ],
   ]);
-  bg__register_rest_route($rest_namespace, '/pages(|/(?P<page_id>\d+))', 'bg__pages', [
+  $register_rest_route('/pages(|/(?P<page_id>\d+))', 'bg__pages', [
     'page_id' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
@@ -294,7 +294,7 @@ function bg__init() {
       },
     ],
   ]);
-  bg__register_rest_route($rest_namespace, '/posts(|/(?P<post_id>\d+))', 'bg__posts', [
+  $register_rest_route('/posts(|/(?P<post_id>\d+))', 'bg__posts', [
     'limit' => [
       'sanitize_callback' => function ($value, $req, $key) {
         return intval($value);
@@ -346,4 +346,4 @@ function bg__init() {
   ]);
 }
 
-add_action('rest_api_init', __NAMESPACE__ . '\\bg__init');
+add_action('rest_api_init', __NAMESPACE__ . '\\bg__api_init');
