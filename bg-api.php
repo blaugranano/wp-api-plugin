@@ -161,7 +161,20 @@ function bg__get_previous_post($post_id) {
 */
 
 function bg__render_menu($menu_id) {
-  return wp_get_nav_menu_items($menu_id);
+  $menu_object = wp_get_nav_menu_items($menu_id);
+  $menu_object = array_map(function ($menu_item) {
+    return [
+      'item_description' => $menu_item->description,
+      'item_id' => $menu_item->ID,
+      'item_slug' => "/{$menu_item->post_name}",
+      'item_target' => $menu_item->target,
+      'item_title' => $menu_item->post_title,
+      'item_type' => $menu_item->type,
+      'item_url' => $menu_item->url,
+    ];
+  }, $menu_object);
+
+  return $menu_object;
 }
 
 function bg__render_page($ref) {
@@ -202,6 +215,10 @@ function bg__render_post($ref) {
 */
 
 function bg__send_response($data) {
+  if (count($data) === 1) {
+    $data = end($data);
+  }
+
   return [
     'data' => $data,
     '_api_namespace' => __NAMESPACE__,
