@@ -1,12 +1,12 @@
 <?php
 
-namespace Blaugrana\Api\v4;
+namespace Blaugrana\Api\v5;
 
 /**
 * Plugin Name: Blaugrana API
 * Plugin URI: https://github.com/blaugranano/wp-api-plugin
 * Description: This WordPress plugin adds custom endpoints to the WordPress REST API.
-* Version: 4.0.0
+* Version: 5.0.0
 * Author: Blaugrana
 * Author URI: https://github.com/blaugranano
 */
@@ -160,15 +160,8 @@ function bg__get_previous_post($post_id) {
 * Define render functions
 */
 
-function bg__render_request($req) {
-  $req['_api_namespace'] = __NAMESPACE__;
-  $req['_api_version'] = bg__get_api_version();
-
-  return $req;
-}
-
 function bg__render_menu($menu_id) {
-  return bg__render_request(wp_get_nav_menu_items($menu_id));
+  return wp_get_nav_menu_items($menu_id);
 }
 
 function bg__render_page($ref) {
@@ -183,7 +176,7 @@ function bg__render_page($ref) {
     'post_title' => bg__get_title($post_id),
   ];
 
-  return bg__render_request($page_object);
+  return $page_object;
 }
 
 function bg__render_post($ref) {
@@ -201,15 +194,25 @@ function bg__render_post($ref) {
     'previous_post' => bg__get_previous_post($post_id),
   ];
 
-  return bg__render_request($post_object);
+  return $post_object;
 }
 
 /**
 * Define plugin functions
 */
 
+function bg__send_response($data) {
+  return [
+    'data' => $data,
+    '_api_namespace' => __NAMESPACE__,
+    '_api_version' => bg__get_api_version(),
+  ];
+}
+
 function bg__menus($req) {
-  return bg__render_menu($req->get_param('menu_id'));
+  $menus = bg__render_menu($req->get_param('menu_id'));
+
+  return bg__send_response($menus);
 }
 
 function bg__pages($req) {
@@ -218,8 +221,9 @@ function bg__pages($req) {
     'name' => $req->get_param('page_slug') ?: NULL,
     'post_type' => 'page',
   ]);
+  $pages = array_map(__NAMESPACE__ . '\\bg__render_page', $pages);
 
-  return array_map(__NAMESPACE__ . '\\bg__render_page', $pages);
+  return bg__send_response($pages);
 }
 
 function bg__posts($req) {
@@ -233,8 +237,9 @@ function bg__posts($req) {
     'posts_per_page' => $req->get_param('limit') ?: 1,
     's' => $req->get_param('search') ?: NULL,
   ]);
+  $posts = array_map(__NAMESPACE__ . '\\bg__render_post', $posts);
 
-  return array_map(__NAMESPACE__ . '\\bg__render_post', $posts);
+  return bg__send_response($posts);
 }
 
 /**
